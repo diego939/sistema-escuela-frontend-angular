@@ -19,7 +19,11 @@ export class MenuService {
   }
 
   cargarDesdeStorage() {
+  if (typeof localStorage !== 'undefined') {
     const data = localStorage.getItem('menus');
-    if (data) this.menusSubject.next(JSON.parse(data));
+    if (data) {
+      this.menusSubject.next(JSON.parse(data));
+    }
   }
+}
 }
