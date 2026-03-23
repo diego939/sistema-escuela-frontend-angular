@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { AuthService } from '../../core/services/auth.service';
 import { MenuService } from '../../core/services/menu.service';
 import { Router } from '@angular/router';
@@ -12,7 +12,8 @@ import { CommonModule } from '@angular/common';
   templateUrl: './login.component.html',
   styleUrl: './login.component.css'
 })
-export class LoginComponent {
+export class LoginComponent implements OnInit {
+  
   form = this.fb.group({
     email: [''],
     password: ['']
@@ -25,14 +26,34 @@ export class LoginComponent {
     private router: Router
   ) {}
 
-  login() {
-    this.authService.login(this.form.value).subscribe(user => {
+  ngOnInit() {
+  if (this.authService.isLogged()) {
 
-      this.authService.guardarUsuario(user);
+    const menus = this.menuService.obtenerMenus();
 
-      this.menuService.cargarMenus(user.idRol);
+    if (menus.length > 0) {
+      this.router.navigate([menus[0].menuUrl]);
+    }
 
-      this.router.navigate(['/pages/dashboard']);
-    });
   }
+}
+  
+  login() {
+  this.authService.login(this.form.value).subscribe(user => {
+
+    this.authService.guardarUsuario(user);
+
+    this.menuService.cargarMenus(user.idRol).subscribe(menus => {
+
+      if (menus.length > 0) {
+        const primeraRuta = menus[0].menuUrl;
+        this.router.navigate([primeraRuta]);
+      } else {
+        this.router.navigate(['/login']);
+      }
+
+    });
+
+  });
+}
 }

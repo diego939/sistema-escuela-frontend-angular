@@ -3,6 +3,7 @@ import { MenuService } from '../../core/services/menu.service';
 import { CommonModule, NgFor } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-sidebar',
@@ -14,7 +15,7 @@ import { AuthService } from '../../core/services/auth.service';
 export class SidebarComponent {
 menus: any[] = [];
 
-constructor(private menuService: MenuService) {}
+constructor(private menuService: MenuService, private authService: AuthService, private router: Router) {}
 
 ngOnInit() {
   this.menuService.menus$.subscribe(m => this.menus = m);
@@ -22,6 +23,7 @@ ngOnInit() {
 }
 
 logout() {
-  AuthService.prototype.logout();
+  this.authService.logout();
+  this.router.navigate(['/login']);
 }
 }
