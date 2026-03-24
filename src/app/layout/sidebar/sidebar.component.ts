@@ -1,29 +1,44 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { MenuService } from '../../core/services/menu.service';
 import { CommonModule, NgFor } from '@angular/common';
-import { RouterModule } from '@angular/router';
+import { RouterModule, Router } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
-import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-sidebar',
   standalone: true,
-  imports: [NgFor,CommonModule,RouterModule],
+  imports: [NgFor, CommonModule, RouterModule],
   templateUrl: './sidebar.component.html',
-    styleUrl: './sidebar.component.css'
-  })
-export class SidebarComponent {
-menus: any[] = [];
+  styleUrl: './sidebar.component.css'
+})
+export class SidebarComponent implements OnInit {
 
-constructor(private menuService: MenuService, private authService: AuthService, private router: Router) {}
+  menus: any[] = [];
+  isOpen = false; // CONTROL DEL DRAWER
 
-ngOnInit() {
-  this.menuService.menus$.subscribe(m => this.menus = m);
-  this.menuService.cargarDesdeStorage();
-}
+  constructor(
+    private menuService: MenuService,
+    private authService: AuthService,
+    private router: Router
+  ) {}
 
-logout() {
-  this.authService.logout();
-  this.router.navigate(['/login']);
-}
+  ngOnInit() {
+    this.menuService.menus$.subscribe(m => this.menus = m);
+    this.menuService.cargarDesdeStorage();
+  }
+
+  // NUEVOS MÉTODOS
+  toggleDrawer() {
+    this.isOpen = !this.isOpen;
+  }
+
+  closeDrawer() {
+    this.isOpen = false;
+  }
+
+  logout() {
+    this.authService.logout();
+    this.closeDrawer(); // importante
+    this.router.navigate(['/login']);
+  }
 }

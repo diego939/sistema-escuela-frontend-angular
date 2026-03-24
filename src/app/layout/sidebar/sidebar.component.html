@@ -1,8 +1,53 @@
-<ul>
-  <li *ngFor="let menu of menus">
-    <a [routerLink]="menu.menuUrl">
-      {{ menu.menuNombre }}
-    </a>
-  </li>
-</ul>
-<button (click)="logout()">Logout</button>
+<!-- BOTÓN -->
+<div class="text-center">
+  <button
+    (click)="toggleDrawer()"
+    class="text-white bg-blue-600 hover:bg-blue-700 font-medium rounded-lg text-sm px-4 py-2">
+    Show navigation
+  </button>
+</div>
+
+<!-- OVERLAY -->
+<div *ngIf="isOpen"
+     (click)="closeDrawer()"
+     class="fixed inset-0 bg-black/50 z-30">
+</div>
+
+<!-- SIDEBAR -->
+<div
+  class="fixed top-0 left-0 z-40 w-64 h-screen p-4 overflow-y-auto transition-transform duration-300 bg-white border-r"
+  [class.-translate-x-full]="!isOpen"
+  [class.translate-x-0]="isOpen"
+>
+
+  <!-- HEADER -->
+  <div class="border-b pb-4 flex items-center justify-between">
+    <span class="text-lg font-semibold">Menú</span>
+
+    <button (click)="closeDrawer()"
+            class="w-8 h-8 flex items-center justify-center hover:bg-gray-100 rounded">
+      ✖
+    </button>
+  </div>
+
+  <!-- MENÚ DINÁMICO -->
+  <ul class="py-5 space-y-2 font-medium">
+    <li *ngFor="let menu of menus">
+      <a
+        [routerLink]="menu.menuUrl"
+        (click)="closeDrawer()"
+        class="block px-2 py-2 rounded hover:bg-gray-100">
+        {{ menu.menuNombre }}
+      </a>
+    </li>
+
+    <!-- LOGOUT -->
+    <li>
+      <button
+        (click)="logout()"
+        class="w-full text-left px-2 py-2 rounded hover:bg-gray-100">
+        Sign Out
+      </button>
+    </li>
+  </ul>
+</div>
