@@ -1,18 +1,20 @@
 import { Injectable, inject, PLATFORM_ID } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { isPlatformBrowser } from '@angular/common';
+import { environment } from '../../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
 
+  private baseUrl = environment.apiUrl;
   private platformId = inject(PLATFORM_ID);
 
   constructor(private http: HttpClient) {}
 
   login(data: any) {
-    return this.http.post<any>('http://localhost:5224/api/Usuario/login', data);
+    return this.http.post<any>(`${this.baseUrl}/api/Usuario/login`, data);
   }
 
   guardarUsuario(user: any) {
