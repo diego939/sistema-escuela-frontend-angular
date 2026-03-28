@@ -15,9 +15,11 @@
     <div class="relative">
 
       <!-- AVATAR -->
-      <button (click)="toggleUserMenu()">
-        <img class="w-8 h-8 rounded-full"
-             src="https://flowbite.com/docs/images/people/profile-picture-5.jpg">
+      <button 
+        (click)="toggleUserMenu()"
+        class="w-10 h-10 flex items-center justify-center rounded-full border-2 border-brand text-brand hover:bg-brand hover:text-white transition shadow-sm"
+      >
+        <i class="fa-solid fa-user-graduate text-xl"></i>
       </button>
 
       <!-- DROPDOWN -->
