@@ -3,6 +3,7 @@ import { MenuService } from '../../core/services/menu.service';
 import { CommonModule, NgFor } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
+import { LayoutService } from '../../core/services/layout.service';
 
 @Component({
   selector: 'app-sidebar',
@@ -14,31 +15,25 @@ import { AuthService } from '../../core/services/auth.service';
 export class SidebarComponent implements OnInit {
 
   menus: any[] = [];
-  isOpen = false; // CONTROL DEL DRAWER
+
+  // 👇 AGREGAR ESTO
+  isSidebarOpen = false;
 
   constructor(
-    private menuService: MenuService,
-    private authService: AuthService,
-    private router: Router
-  ) {}
+  private menuService: MenuService,
+  private authService: AuthService,
+  private router: Router,
+  private layoutService: LayoutService
+) {}
+ngOnInit() {
+  this.menuService.menus$.subscribe(m => this.menus = m);
+  this.menuService.cargarDesdeStorage();
 
-  ngOnInit() {
-    this.menuService.menus$.subscribe(m => this.menus = m);
-    this.menuService.cargarDesdeStorage();
-  }
+  this.layoutService.sidebarOpen$.subscribe(v => this.isSidebarOpen = v);
+}
 
-  // NUEVOS MÉTODOS
-  toggleDrawer() {
-    this.isOpen = !this.isOpen;
-  }
+closeAll() {
+  this.layoutService.closeSidebar();
+}
 
-  closeDrawer() {
-    this.isOpen = false;
-  }
-
-  logout() {
-    this.authService.logout();
-    this.closeDrawer(); // importante
-    this.router.navigate(['/login']);
-  }
 }

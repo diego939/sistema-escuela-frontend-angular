@@ -1,7 +1,7 @@
-import { Component } from '@angular/core';
+import { Component, HostListener } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { SidebarComponent } from '../sidebar/sidebar.component';
-import { HeaderComponent } from '../header/header.component';
+import { NavbarComponent } from '../navbar/navbar.component';
 import { CommonModule } from '@angular/common';
 
 @Component({
@@ -11,8 +11,9 @@ import { CommonModule } from '@angular/common';
     CommonModule,
     RouterOutlet,
     SidebarComponent, 
-    HeaderComponent   
+    NavbarComponent
   ],
   templateUrl: './main-layout.component.html',
 })
-export class MainLayoutComponent {}
+export class MainLayoutComponent {
+}
