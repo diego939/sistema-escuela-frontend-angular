@@ -18,19 +18,19 @@ export class MenuService {
     .pipe(
       tap(menus => {
         this.menusSubject.next(menus);
-        localStorage.setItem('menus', JSON.stringify(menus));
+        sessionStorage.setItem('menus', JSON.stringify(menus));
       })
     );
   }
 
   obtenerMenus(): any[] {
-    const data = localStorage.getItem('menus');
+    const data = sessionStorage.getItem('menus');
     return data ? JSON.parse(data) : [];
   }
 
   cargarDesdeStorage() {
-  if (typeof localStorage !== 'undefined') {
-    const data = localStorage.getItem('menus');
+  if (typeof sessionStorage !== 'undefined') {
+    const data = sessionStorage.getItem('menus');
     if (data) {
       this.menusSubject.next(JSON.parse(data));
     }

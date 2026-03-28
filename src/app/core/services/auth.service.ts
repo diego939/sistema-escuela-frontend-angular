@@ -19,25 +19,25 @@ export class AuthService {
 
   guardarUsuario(user: any) {
     if (isPlatformBrowser(this.platformId)) {
-      localStorage.setItem('user', JSON.stringify(user));
+      sessionStorage.setItem('user', JSON.stringify(user));
     }
   }
 
   obtenerUsuario() {
     if (isPlatformBrowser(this.platformId)) {
-      const user = localStorage.getItem('user');
+      const user = sessionStorage.getItem('user');
       return user ? JSON.parse(user) : null;
     }
     return null;
   }
 
-  isLogged() {
-    return this.obtenerUsuario() !== null;
+  isLogged(): boolean {
+    return !!this.obtenerUsuario();
   }
 
   logout() {
     if (isPlatformBrowser(this.platformId)) {
-      localStorage.clear();
+      sessionStorage.clear();
     }
   }
 }
