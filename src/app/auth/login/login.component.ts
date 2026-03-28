@@ -13,7 +13,9 @@ import { CommonModule } from '@angular/common';
   styleUrl: './login.component.css'
 })
 export class LoginComponent implements OnInit {
-  
+  errorMessage: string = '';
+  loading = false;
+
   form = this.fb.group({
     email: [''],
     password: ['']
@@ -25,6 +27,7 @@ export class LoginComponent implements OnInit {
     private menuService: MenuService,
     private router: Router
   ) {}
+
 
   ngOnInit() {
   if (this.authService.isLogged()) {
@@ -39,21 +42,40 @@ export class LoginComponent implements OnInit {
 }
   
   login() {
-  this.authService.login(this.form.value).subscribe(user => {
+  if (this.form.invalid) return;
 
-    this.authService.guardarUsuario(user);
+  this.loading = true;
+  this.errorMessage = '';
 
-    this.menuService.cargarMenus(user.idRol).subscribe(menus => {
+  this.authService.login(this.form.value).subscribe({
+    next: (user) => {
 
-      if (menus.length > 0) {
-        const primeraRuta = menus[0].menuUrl;
-        this.router.navigate([primeraRuta]);
-      } else {
-        this.router.navigate(['/login']);
-      }
+      this.authService.guardarUsuario(user);
 
-    });
+      this.menuService.cargarMenus(user.idRol).subscribe({
+        next: (menus) => {
+          this.loading = false;
 
+          if (menus.length > 0) {
+            const primeraRuta = menus[0].menuUrl;
+            this.router.navigate([primeraRuta]);
+          } else {
+            this.router.navigate(['/login']);
+          }
+        },
+        error: () => {
+          this.loading = false;
+          this.errorMessage = 'Error al cargar menús';
+        }
+      });
+
+    },
+    error: (err) => {
+      this.loading = false;
+
+      // mensaje del backend
+      this.errorMessage = err.error?.message || err.error || 'Error al iniciar sesión';
+    }
   });
 }
 }
