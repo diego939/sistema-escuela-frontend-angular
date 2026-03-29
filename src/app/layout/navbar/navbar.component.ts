@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, HostListener } from '@angular/core';
 import { LayoutService } from '../../core/services/layout.service';
 import { AuthService } from '../../core/services/auth.service';
 import { RouterModule, Router } from '@angular/router';
@@ -39,5 +39,17 @@ logout() {
   this.toggleUserMenu(); // Cerrar el menú de usuario al hacer logout
   this.authService.logout();
   this.router.navigate(['/login']);
+}
+
+@HostListener('document:click', ['$event'])
+onClickOutside(event: MouseEvent) {
+  const target = event.target as HTMLElement;
+
+  const clickedInsideDropdown = target.closest('.user-menu');
+  const clickedButton = target.closest('.user-button');
+
+  if (!clickedInsideDropdown && !clickedButton) {
+    this.isUserMenuOpen = false;
+  }
 }
 }

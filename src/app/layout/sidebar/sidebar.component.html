@@ -1,29 +1,50 @@
 <!-- SIDEBAR -->
 <div
-  class="fixed top-0 left-0 z-40 w-64 h-full bg-white border-r border-gray-200 pt-16 transition-transform duration-300"
-  [class.-translate-x-full]="!isSidebarOpen"
+  class="fixed top-0 left-0 z-40 w-64 h-full bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 pt-16 shadow-lg transition-transform duration-300
+
+  -translate-x-full   <!-- 👈 oculto por defecto (mobile) -->
+  sm:translate-x-0    <!-- 👈 visible SIEMPRE en desktop -->
+
+  "
   [class.translate-x-0]="isSidebarOpen"
 >
 
-  <ul class="p-4 space-y-2">
+  <!-- Header -->
+  <div class="px-4 mb-4 mt-4">
+    <h3 class="text-sm font-semibold text-gray-500 uppercase dark:text-gray-400">
+      Menú
+    </h3>
+  </div>
+
+  <!-- Menu -->
+  <ul class="px-3 space-y-1">
 
     <li *ngFor="let menu of menus">
       <a
         [routerLink]="menu.menuUrl"
         (click)="closeAll()"
-        routerLinkActive="bg-blue-100 text-blue-600"
-        class="flex items-center gap-3 px-3 py-2 rounded hover:bg-gray-100">
+        routerLinkActive="bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300"
+        class="flex items-center gap-3 px-3 py-2 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200"
+      >
 
-        <i [class]="menu.menuIcono"></i>
+        <!-- Icono -->
+        <i class="text-base"
+           [class]="menu.menuIcono"></i>
 
-        <span>{{ menu.menuNombre }}</span>
+        <!-- Texto -->
+        <span class="font-medium">
+          {{ menu.menuNombre }}
+        </span>
+
       </a>
     </li>
 
   </ul>
+
 </div>
 
+<!-- OVERLAY MOBILE -->
 <div *ngIf="isSidebarOpen"
      (click)="closeAll()"
-     class="fixed inset-0 bg-black/50 z-30 sm:hidden">
+     class="fixed inset-0 bg-black/50 backdrop-blur-sm z-30 sm:hidden">
 </div>
