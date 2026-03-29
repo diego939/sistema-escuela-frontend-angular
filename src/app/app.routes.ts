@@ -54,7 +54,14 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./features/asistencia/pages/asistencia/asistencia.component')
             .then(m => m.AsistenciaComponent)
-      }
+      },
+      {
+        path: 'usuarios',
+        canActivate: [menuGuard],
+        loadComponent: () =>
+          import('./features/usuarios/pages/usuarios/usuarios.component')
+            .then(m => m.UsuariosComponent)
+      },
     ]
   },
 
