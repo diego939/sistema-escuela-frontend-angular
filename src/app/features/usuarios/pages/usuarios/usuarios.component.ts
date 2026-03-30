@@ -4,6 +4,7 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { UsuarioService } from '../../../../core/services/usuario.service';
 import { Rol, Usuario } from '../../../../core/models/usuario.model';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-usuarios',
@@ -133,6 +134,18 @@ export class UsuariosComponent implements OnInit {
     this.cargarUsuarios();
   }
 
+  private toastSuccess(mensaje: string) {
+  Swal.fire({
+    toast: true,
+    position: 'top',
+    icon: 'success',
+    title: mensaje,
+    showConfirmButton: false,
+    timer: 2000,
+    timerProgressBar: true
+  });
+}
+
   abrirModalCrear(): void {
     this.errorApi = null;
     this.aplicarValoresInicialesCrear();
@@ -197,6 +210,7 @@ export class UsuariosComponent implements OnInit {
           this.guardando = false;
           this.cerrarModalCrear();
           this.cargarUsuarios();
+          this.toastSuccess('Usuario creado correctamente');
         },
         error: err => {
           this.guardando = false;
@@ -241,7 +255,7 @@ export class UsuariosComponent implements OnInit {
         email: v.email,
         telefono: v.telefono ?? '',
         dni: v.dni,
-        idRol: v.idRol as number,
+        idRol: Number(v.idRol),
         urlImagen: v.urlImagen ?? ''
       })
       .subscribe({
@@ -249,6 +263,7 @@ export class UsuariosComponent implements OnInit {
           this.guardando = false;
           this.cerrarModalEditar();
           this.cargarUsuarios();
+          this.toastSuccess('Usuario editado correctamente');
         },
         error: err => {
           this.guardando = false;
@@ -318,6 +333,8 @@ export class UsuariosComponent implements OnInit {
         this.guardando = false;
         this.cerrarModalConfirm();
         this.cargarUsuarios();
+        const estado = accion === 'activar' ? 'activado' : 'desactivado';
+        this.toastSuccess(`Usuario ${estado} correctamente`);
       },
       error: err => {
         this.guardando = false;

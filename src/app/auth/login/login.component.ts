@@ -4,6 +4,7 @@ import { MenuService } from '../../core/services/menu.service';
 import { Router } from '@angular/router';
 import { ReactiveFormsModule, FormBuilder } from '@angular/forms';
 import { CommonModule } from '@angular/common';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-login',
@@ -55,6 +56,16 @@ export class LoginComponent implements OnInit {
       this.menuService.cargarMenus(user.idRol).subscribe({
         next: (menus) => {
           this.loading = false;
+
+          Swal.fire({
+            toast: true,
+            position: 'top',
+            icon: 'success',
+            title: `¡Bienvenido ${user.nombre}!`,
+            showConfirmButton: false,
+            timer: 2000,
+            timerProgressBar: true
+          });
 
           if (menus.length > 0) {
             const primeraRuta = menus[0].menuUrl;
