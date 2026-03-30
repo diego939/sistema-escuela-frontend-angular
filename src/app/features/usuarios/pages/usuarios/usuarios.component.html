@@ -7,19 +7,28 @@
       Usuarios
     </h2>
 
-    <div class="flex gap-2 w-full sm:w-auto">
+    <div class="flex flex-wrap gap-2 w-full sm:w-auto items-center">
       <input
         type="search"
         [(ngModel)]="search"
         (keyup.enter)="buscar()"
         placeholder="Buscar usuario..."
-        class="w-full sm:w-64 px-3 py-2 text-sm border rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:border-gray-600 dark:text-white"
+        class="w-full sm:w-64 px-3 py-2 text-sm border border-gray-300 rounded-lg bg-gray-50 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800 dark:border-gray-600 dark:text-white dark:placeholder-gray-400"
       />
 
       <button
+        type="button"
         (click)="buscar()"
-        class="px-4 py-2 text-sm text-white bg-blue-600 rounded-lg hover:bg-blue-700">
+        class="px-4 py-2 text-sm font-medium text-white bg-blue-700 rounded-lg hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700">
         Buscar
+      </button>
+
+      <button
+        type="button"
+        (click)="abrirModalCrear()"
+        class="px-4 py-2 text-sm font-medium text-white bg-green-700 rounded-lg hover:bg-green-800 focus:ring-4 focus:ring-green-300 dark:bg-green-600">
+        <i class="fa-solid fa-user-plus mr-1"></i>
+        Nuevo usuario
       </button>
     </div>
 
@@ -31,62 +40,66 @@
 
   <!-- TABLA -->
   <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
-    
+
     <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
       <tr>
-        
-        <th class="px-6 py-3 cursor-pointer" (click)="ordenar('id')">
+
+        <th scope="col" class="px-6 py-3 cursor-pointer" (click)="ordenar('id')">
           ID
           <i *ngIf="sortBy === 'id'" class="ml-1"
              [ngClass]="sortDescending ? 'fa-solid fa-arrow-down' : 'fa-solid fa-arrow-up'">
           </i>
         </th>
 
-        <th class="px-6 py-3 cursor-pointer" (click)="ordenar('nombres')">
+        <th scope="col" class="px-6 py-3 cursor-pointer" (click)="ordenar('nombres')">
           Nombre
           <i *ngIf="sortBy === 'nombres'" class="ml-1"
              [ngClass]="sortDescending ? 'fa-solid fa-arrow-down' : 'fa-solid fa-arrow-up'">
           </i>
         </th>
 
-        <th class="px-6 py-3 cursor-pointer" (click)="ordenar('email')">
+        <th scope="col" class="px-6 py-3 cursor-pointer" (click)="ordenar('email')">
           Email
           <i *ngIf="sortBy === 'email'" class="ml-1"
              [ngClass]="sortDescending ? 'fa-solid fa-arrow-down' : 'fa-solid fa-arrow-up'">
           </i>
         </th>
 
-        <th class="px-6 py-3 cursor-pointer" (click)="ordenar('telefono')">
+        <th scope="col" class="px-6 py-3 cursor-pointer" (click)="ordenar('telefono')">
           Telefono
           <i *ngIf="sortBy === 'telefono'" class="ml-1"
              [ngClass]="sortDescending ? 'fa-solid fa-arrow-down' : 'fa-solid fa-arrow-up'">
           </i>
         </th>
 
-        <th class="px-6 py-3 cursor-pointer" (click)="ordenar('rol')">
+        <th scope="col" class="px-6 py-3 cursor-pointer" (click)="ordenar('rol')">
           Rol
           <i *ngIf="sortBy === 'rol'" class="ml-1"
              [ngClass]="sortDescending ? 'fa-solid fa-arrow-down' : 'fa-solid fa-arrow-up'">
           </i>
         </th>
 
-        <th class="px-6 py-3 cursor-pointer" (click)="ordenar('dni')">
+        <th scope="col" class="px-6 py-3 cursor-pointer" (click)="ordenar('dni')">
           DNI
           <i *ngIf="sortBy === 'dni'" class="ml-1"
              [ngClass]="sortDescending ? 'fa-solid fa-arrow-down' : 'fa-solid fa-arrow-up'">
           </i>
         </th>
 
+        <th scope="col" class="px-6 py-3 text-right">
+          Acciones
+        </th>
+
       </tr>
     </thead>
 
     <tbody>
-      <tr *ngFor="let user of usuarios"
+      <tr *ngFor="let user of usuarios; trackBy: trackByUsuarioId"
           class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
 
-        <td class="px-6 py-4 font-medium text-gray-900 dark:text-white">
+        <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
           {{ user.id }}
-        </td>
+        </th>
 
         <td class="px-6 py-4">
           {{ user.nombres }} {{ user.apellidos }}
@@ -101,14 +114,14 @@
         </td>
 
         <td class="px-6 py-4">
-          <span 
+          <span
             class="px-2 py-1 text-xs font-medium rounded"
             [ngClass]="{
-              'bg-red-100 text-red-800': user.rol === 'ADMINISTRADOR',
-              'bg-green-100 text-green-800': user.rol === 'ALUMNO',
-              'bg-yellow-100 text-yellow-800': user.rol === 'PROFESOR',
-              'bg-blue-100 text-blue-800': user.rol === 'RECTOR',
-              'bg-orange-100 text-orange-800': user.rol === 'PRECEPTOR',
+              'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300': user.rol === 'ADMINISTRADOR',
+              'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300': user.rol === 'ALUMNO',
+              'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300': user.rol === 'PROFESOR',
+              'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300': user.rol === 'RECTOR',
+              'bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-300': user.rol === 'PRECEPTOR',
             }">
             {{ user.rol }}
           </span>
@@ -118,6 +131,57 @@
           {{ user.dni }}
         </td>
 
+        <td class="px-6 py-4">
+          <div class="flex flex-wrap items-center justify-end gap-2">
+
+            <div class="relative inline-flex group">
+              <button
+                type="button"
+                (click)="abrirModalEditar(user)"
+                class="inline-flex items-center justify-center rounded-lg p-2 text-gray-500 hover:bg-gray-100 hover:text-blue-600 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-blue-400">
+                <i class="fa-solid fa-pen-to-square text-lg"></i>
+              </button>
+              <div
+                role="tooltip"
+                class="absolute bottom-full left-1/2 z-20 mb-2 -translate-x-1/2 whitespace-nowrap rounded-lg bg-gray-900 px-3 py-2 text-xs font-medium text-white opacity-0 shadow-sm transition-opacity duration-300 invisible group-hover:opacity-100 group-hover:visible dark:bg-gray-700">
+                Editar usuario
+                <div class="tooltip-arrow absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-gray-900 dark:border-t-gray-700"></div>
+              </div>
+            </div>
+
+            <div *ngIf="mostrarActivar(user)" class="relative inline-flex group">
+              <button
+                type="button"
+                (click)="abrirConfirmacionActivar(user)"
+                class="inline-flex items-center justify-center rounded-lg p-2 text-green-600 hover:bg-green-100 dark:text-green-400 dark:hover:bg-gray-700">
+                <i class="fa-solid fa-user-check text-lg"></i>
+              </button>
+              <div
+                role="tooltip"
+                class="absolute bottom-full left-1/2 z-20 mb-2 -translate-x-1/2 whitespace-nowrap rounded-lg bg-gray-900 px-3 py-2 text-xs font-medium text-white opacity-0 shadow-sm transition-opacity duration-300 invisible group-hover:opacity-100 group-hover:visible dark:bg-gray-700">
+                Activar usuario
+                <div class="tooltip-arrow absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-gray-900 dark:border-t-gray-700"></div>
+              </div>
+            </div>
+
+            <div *ngIf="mostrarDesactivar(user)" class="relative inline-flex group">
+              <button
+                type="button"
+                (click)="abrirConfirmacionDesactivar(user)"
+                class="inline-flex items-center justify-center rounded-lg p-2 text-red-600 hover:bg-red-100 dark:text-red-400 dark:hover:bg-gray-700">
+                <i class="fa-solid fa-user-slash text-lg"></i>
+              </button>
+              <div
+                role="tooltip"
+                class="absolute bottom-full left-1/2 z-20 mb-2 -translate-x-1/2 whitespace-nowrap rounded-lg bg-gray-900 px-3 py-2 text-xs font-medium text-white opacity-0 shadow-sm transition-opacity duration-300 invisible group-hover:opacity-100 group-hover:visible dark:bg-gray-700">
+                Desactivar usuario
+                <div class="tooltip-arrow absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-gray-900 dark:border-t-gray-700"></div>
+              </div>
+            </div>
+
+          </div>
+        </td>
+
       </tr>
     </tbody>
   </table>
@@ -125,10 +189,11 @@
   <!-- PAGINACIÓN -->
   <div class="flex flex-col sm:flex-row justify-between items-center gap-3 p-4 bg-white dark:bg-gray-900">
 
-    <button 
-      (click)="anteriorPagina()" 
+    <button
+      type="button"
+      (click)="anteriorPagina()"
       [disabled]="!hasPreviousPage"
-      class="px-4 py-2 text-sm font-medium text-white bg-gray-800 rounded-lg hover:bg-gray-900 disabled:opacity-50 disabled:cursor-not-allowed">
+      class="px-4 py-2 text-sm font-medium text-white bg-gray-800 rounded-lg hover:bg-gray-900 disabled:opacity-50 disabled:cursor-not-allowed dark:bg-gray-700 dark:hover:bg-gray-600">
       <i class="fa-solid fa-circle-arrow-left"></i> Anterior
     </button>
 
@@ -136,13 +201,206 @@
       Página {{ page }} de {{ totalPages }}
     </span>
 
-    <button 
-      (click)="siguientePagina()" 
+    <button
+      type="button"
+      (click)="siguientePagina()"
       [disabled]="!hasNextPage"
-      class="px-4 py-2 text-sm font-medium text-white bg-gray-800 rounded-lg hover:bg-gray-900 disabled:opacity-50 disabled:cursor-not-allowed">
+      class="px-4 py-2 text-sm font-medium text-white bg-gray-800 rounded-lg hover:bg-gray-900 disabled:opacity-50 disabled:cursor-not-allowed dark:bg-gray-700 dark:hover:bg-gray-600">
       Siguiente <i class="fa-solid fa-circle-arrow-right"></i>
     </button>
 
   </div>
 
+</div>
+
+<!-- Modal crear (estilo Flowbite: https://flowbite.com/docs/components/modal/) -->
+<div
+  *ngIf="modalCrearAbierto"
+  tabindex="-1"
+  aria-modal="true"
+  class="fixed inset-0 z-50 flex items-center justify-center p-4 overflow-y-auto bg-gray-900/50 dark:bg-gray-900/80"
+  (click)="cerrarModalCrear()">
+  <div
+    class="relative w-full max-w-2xl max-h-full rounded-lg bg-white shadow-sm dark:bg-gray-700"
+    (click)="$event.stopPropagation()">
+    <div class="flex items-center justify-between p-4 md:p-5 border-b rounded-t dark:border-gray-600 border-gray-200">
+      <h3 class="text-xl font-semibold text-gray-900 dark:text-white">
+        Nuevo usuario
+      </h3>
+      <button
+        type="button"
+        (click)="cerrarModalCrear()"
+        class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white">
+        <i class="fa-solid fa-xmark text-lg"></i>
+      </button>
+    </div>
+    <form [formGroup]="crearForm" (ngSubmit)="guardarCrear()" class="p-4 md:p-5 space-y-4">
+      <p *ngIf="errorApi" class="text-sm text-red-600 dark:text-red-400">{{ errorApi }}</p>
+      <div class="grid gap-4 sm:grid-cols-2">
+        <div>
+          <label for="crear-nombres" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Nombres</label>
+          <input id="crear-nombres" type="text" formControlName="nombres"
+            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:text-white" />
+        </div>
+        <div>
+          <label for="crear-apellidos" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Apellidos</label>
+          <input id="crear-apellidos" type="text" formControlName="apellidos"
+            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:text-white" />
+        </div>
+      </div>
+      <div>
+        <label for="crear-email" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Email</label>
+        <input id="crear-email" type="email" formControlName="email" autocomplete="email"
+          class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:text-white" />
+      </div>
+      <div>
+        <label for="crear-password" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Contraseña</label>
+        <input id="crear-password" type="password" formControlName="password" autocomplete="new-password"
+          class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:text-white" />
+      </div>
+      <div class="grid gap-4 sm:grid-cols-2">
+        <div>
+          <label for="crear-telefono" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Teléfono</label>
+          <input id="crear-telefono" type="text" formControlName="telefono"
+            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:text-white" />
+        </div>
+        <div>
+          <label for="crear-dni" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">DNI</label>
+          <input id="crear-dni" type="text" formControlName="dni"
+            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:text-white" />
+        </div>
+      </div>
+      <div>
+        <label for="crear-rol" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Rol</label>
+        <select id="crear-rol" formControlName="idRol"
+          class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:text-white">
+          <option [ngValue]="null" disabled>Seleccione un rol</option>
+          <option *ngFor="let r of roles" [ngValue]="r.id">{{ r.descripcion }}</option>
+        </select>
+      </div>
+      <div class="flex items-center pt-2 border-t border-gray-200 dark:border-gray-600 gap-2 justify-end">
+        <button type="button" (click)="cerrarModalCrear()"
+          class="py-2.5 px-5 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700">
+          Cancelar
+        </button>
+        <button type="submit" [disabled]="guardando"
+          class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 dark:bg-blue-600 dark:hover:bg-blue-700 disabled:opacity-50">
+          {{ guardando ? 'Guardando…' : 'Guardar' }}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Modal editar -->
+<div
+  *ngIf="modalEditarAbierto"
+  tabindex="-1"
+  aria-modal="true"
+  class="fixed inset-0 z-50 flex items-center justify-center p-4 overflow-y-auto bg-gray-900/50 dark:bg-gray-900/80"
+  (click)="cerrarModalEditar()">
+  <div
+    class="relative w-full max-w-2xl max-h-full rounded-lg bg-white shadow-sm dark:bg-gray-700"
+    (click)="$event.stopPropagation()">
+    <div class="flex items-center justify-between p-4 md:p-5 border-b rounded-t dark:border-gray-600 border-gray-200">
+      <h3 class="text-xl font-semibold text-gray-900 dark:text-white">
+        Editar usuario
+      </h3>
+      <button
+        type="button"
+        (click)="cerrarModalEditar()"
+        class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white">
+        <i class="fa-solid fa-xmark text-lg"></i>
+      </button>
+    </div>
+    <form [formGroup]="editarForm" (ngSubmit)="guardarEditar()" class="p-4 md:p-5 space-y-4">
+      <p *ngIf="errorApi" class="text-sm text-red-600 dark:text-red-400">{{ errorApi }}</p>
+      <input type="hidden" formControlName="id" />
+      <div class="grid gap-4 sm:grid-cols-2">
+        <div>
+          <label for="edit-nombres" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Nombres</label>
+          <input id="edit-nombres" type="text" formControlName="nombres"
+            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:text-white" />
+        </div>
+        <div>
+          <label for="edit-apellidos" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Apellidos</label>
+          <input id="edit-apellidos" type="text" formControlName="apellidos"
+            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:text-white" />
+        </div>
+      </div>
+      <div>
+        <label for="edit-email" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Email</label>
+        <input id="edit-email" type="email" formControlName="email" autocomplete="email"
+          class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:text-white" />
+      </div>
+      <div class="grid gap-4 sm:grid-cols-2">
+        <div>
+          <label for="edit-telefono" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Teléfono</label>
+          <input id="edit-telefono" type="text" formControlName="telefono"
+            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:text-white" />
+        </div>
+        <div>
+          <label for="edit-dni" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">DNI</label>
+          <input id="edit-dni" type="text" formControlName="dni"
+            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:text-white" />
+        </div>
+      </div>
+      <div>
+        <label for="edit-rol" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Rol</label>
+        <select id="edit-rol" formControlName="idRol"
+          class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:text-white">
+          <option *ngFor="let r of roles" [ngValue]="r.id">{{ r.descripcion }}</option>
+        </select>
+      </div>
+      <div>
+        <label for="edit-url" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">URL imagen</label>
+        <input id="edit-url" type="text" formControlName="urlImagen"
+          class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:text-white" />
+      </div>
+    </form>
+    <div class="flex items-center p-4 md:p-5 border-t border-gray-200 rounded-b dark:border-gray-600 gap-2 justify-end">
+      <button type="button" (click)="cerrarModalEditar()"
+        class="py-2.5 px-5 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700">
+        Cancelar
+      </button>
+      <button type="button" (click)="guardarEditar()" [disabled]="guardando"
+        class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 dark:bg-blue-600 dark:hover:bg-blue-700 disabled:opacity-50">
+        {{ guardando ? 'Guardando…' : 'Guardar cambios' }}
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal confirmación activar / desactivar -->
+<div
+  *ngIf="modalConfirmAbierto"
+  tabindex="-1"
+  aria-modal="true"
+  class="fixed inset-0 z-[60] flex items-center justify-center p-4 overflow-y-auto bg-gray-900/50 dark:bg-gray-900/80"
+  (click)="cerrarModalConfirm()">
+  <div
+    class="relative w-full max-w-md rounded-lg bg-white shadow-sm dark:bg-gray-700"
+    (click)="$event.stopPropagation()">
+    <div class="p-4 md:p-5 text-center">
+      <i class="fa-solid fa-circle-question mx-auto mb-4 text-gray-400 w-12 h-12 text-4xl" aria-hidden="true"></i>
+      <h3 class="mb-2 text-lg font-semibold text-gray-900 dark:text-white">
+        Confirmar
+      </h3>
+      <p class="mb-4 text-gray-500 dark:text-gray-300">{{ textoConfirmacion() }}</p>
+      <p *ngIf="errorApi" class="mb-4 text-sm text-red-600 dark:text-red-400">{{ errorApi }}</p>
+      <div class="flex justify-center gap-2">
+        <button type="button" (click)="cerrarModalConfirm()"
+          class="py-2.5 px-5 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:bg-gray-700 dark:hover:text-white">
+          Cancelar
+        </button>
+        <button type="button" (click)="confirmarAccionEstado()" [disabled]="guardando"
+          class="text-white font-medium rounded-lg text-sm px-5 py-2.5 focus:ring-4 focus:outline-none disabled:opacity-50"
+          [ngClass]="accionConfirmacion === 'activar'
+            ? 'bg-green-700 hover:bg-green-800 focus:ring-green-300 dark:bg-green-600'
+            : 'bg-red-700 hover:bg-red-800 focus:ring-red-300 dark:bg-red-600'">
+          {{ guardando ? 'Procesando…' : (accionConfirmacion === 'activar' ? 'Activar' : 'Desactivar') }}
+        </button>
+      </div>
+    </div>
+  </div>
 </div>
