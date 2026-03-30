@@ -28,7 +28,6 @@ export class UsuarioService {
       .set('sortDescending', sortDescending.toString());
 
     const response = this.http.get<UsuarioPaginadoResponse>(`${this.baseUrl}/api/Usuario/lista-paginado`, { params });
-    console.log('Respuesta del servicio:', response);
     return response;
   }
 
