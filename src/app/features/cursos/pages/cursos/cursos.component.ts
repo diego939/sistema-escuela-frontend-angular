@@ -2,11 +2,13 @@ import { CommonModule } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
+import { concat, forkJoin } from 'rxjs';
 import Swal from 'sweetalert2';
 
 import { CursoService } from '../../../../core/services/curso.service';
+import { MateriaService } from '../../../../core/services/materia.service';
 import { Curso } from '../../../../core/models/curso.model';
-import { CursoMateria } from '../../../../core/models/materia.model';
+import { CursoMateria, Materia } from '../../../../core/models/materia.model';
 
 @Component({
   selector: 'app-cursos',
@@ -42,11 +44,22 @@ export class CursosComponent implements OnInit {
   modalCrearAbierto = false;
   modalEditarAbierto = false;
   modalMateriasAbierto = false;
+  modalAsociarMateriasAbierto = false;
   guardando = false;
   errorApi: string | null = null;
   materias: CursoMateria[] = [];
   cursoSeleccionado: Curso | null = null;
   cargandoMaterias = false;
+
+  cursoAsociarMaterias: Curso | null = null;
+  todasMateriasDisponibles: Materia[] = [];
+  /** Estado del checkbox por id de materia */
+  materiaSeleccion: Record<number, boolean> = {};
+  /** Ids asociados al abrir el modal (para calcular altas y bajas) */
+  inicialAsociadosIds = new Set<number>();
+  cargandoAsociarMaterias = false;
+  guardandoAsociaciones = false;
+  errorApiAsociar: string | null = null;
 
   crearForm = this.fb.nonNullable.group({
     modulo: [1, [Validators.required, Validators.min(1)]],
@@ -69,6 +82,7 @@ export class CursosComponent implements OnInit {
 
   constructor(
     private cursoService: CursoService,
+    private materiaService: MateriaService,
     private fb: FormBuilder
   ) {}
 
@@ -81,6 +95,10 @@ export class CursosComponent implements OnInit {
   }
 
   trackByMateriaId(_: number, m: CursoMateria): number {
+    return m.id;
+  }
+
+  trackByMateriaListaId(_: number, m: Materia): number {
     return m.id;
   }
 
@@ -287,6 +305,101 @@ export class CursosComponent implements OnInit {
         this.cargandoMaterias = false;
         this.toastError('Error al cargar las materias');
         console.error(err);
+      }
+    });
+  }
+
+  abrirModalAsociarMaterias(curso: Curso): void {
+    this.cursoAsociarMaterias = curso;
+    this.errorApiAsociar = null;
+    this.todasMateriasDisponibles = [];
+    this.materiaSeleccion = {};
+    this.inicialAsociadosIds = new Set();
+    this.cargandoAsociarMaterias = true;
+    this.modalAsociarMateriasAbierto = true;
+
+    forkJoin({
+      todas: this.materiaService.getMateriasLista(),
+      delCurso: this.cursoService.getMateriasPorCurso(curso.id)
+    }).subscribe({
+      next: ({ todas, delCurso }) => {
+        this.todasMateriasDisponibles = [...todas].sort((a, b) =>
+          a.descripcion.localeCompare(b.descripcion, 'es')
+        );
+        this.inicialAsociadosIds = new Set(delCurso.map(cm => cm.idMateria));
+        const sel: Record<number, boolean> = {};
+        for (const m of this.todasMateriasDisponibles) {
+          sel[m.id] = this.inicialAsociadosIds.has(m.id);
+        }
+        this.materiaSeleccion = sel;
+        this.cargandoAsociarMaterias = false;
+      },
+      error: (err) => {
+        this.cargandoAsociarMaterias = false;
+        this.errorApiAsociar = this.mensajeErrorHttp(err);
+        this.toastError('Error al cargar las materias');
+        console.error(err);
+      }
+    });
+  }
+
+  cerrarModalAsociarMaterias(): void {
+    this.modalAsociarMateriasAbierto = false;
+    this.cursoAsociarMaterias = null;
+    this.todasMateriasDisponibles = [];
+    this.materiaSeleccion = {};
+    this.inicialAsociadosIds = new Set();
+    this.errorApiAsociar = null;
+    this.cargandoAsociarMaterias = false;
+    this.guardandoAsociaciones = false;
+  }
+
+  onToggleMateriaAsociar(idMateria: number, ev: Event): void {
+    const checked = (ev.target as HTMLInputElement).checked;
+    this.materiaSeleccion = { ...this.materiaSeleccion, [idMateria]: checked };
+  }
+
+  guardarAsociacionesMaterias(): void {
+    if (this.guardandoAsociaciones || !this.cursoAsociarMaterias) return;
+
+    const idCurso = this.cursoAsociarMaterias.id;
+    const inicial = this.inicialAsociadosIds;
+
+    const toAdd: number[] = [];
+    const toRemove: number[] = [];
+
+    for (const m of this.todasMateriasDisponibles) {
+      const sel = !!this.materiaSeleccion[m.id];
+      if (sel && !inicial.has(m.id)) {
+        toAdd.push(m.id);
+      }
+      if (!sel && inicial.has(m.id)) {
+        toRemove.push(m.id);
+      }
+    }
+
+    if (toAdd.length === 0 && toRemove.length === 0) {
+      this.cerrarModalAsociarMaterias();
+      return;
+    }
+
+    this.guardandoAsociaciones = true;
+    this.errorApiAsociar = null;
+
+    const ops = [
+      ...toAdd.map(idMateria => this.materiaService.asociar({ idCurso, idMateria })),
+      ...toRemove.map(idMateria => this.materiaService.desasociar(idCurso, idMateria))
+    ];
+
+    concat(...ops).subscribe({
+      complete: () => {
+        this.guardandoAsociaciones = false;
+        this.cerrarModalAsociarMaterias();
+        this.toastSuccess('Asociaciones de materias actualizadas');
+      },
+      error: (err: unknown) => {
+        this.guardandoAsociaciones = false;
+        this.errorApiAsociar = this.mensajeErrorHttp(err);
       }
     });
   }
