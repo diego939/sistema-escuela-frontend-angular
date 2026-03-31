@@ -1,1 +1,265 @@
-<p>materias works!</p>
+<div class="relative overflow-x-auto shadow-md sm:rounded-lg">
+
+  <div class="flex flex-col sm:flex-row justify-between items-center gap-4 p-4 bg-white dark:bg-gray-900">
+
+    <h2 class="text-xl font-semibold text-gray-900 dark:text-white">
+      Materias
+    </h2>
+
+    <div class="flex flex-wrap gap-2 w-full sm:w-auto items-center">
+      <input
+        type="search"
+        [(ngModel)]="search"
+        (keyup.enter)="buscar()"
+        placeholder="Buscar materia..."
+        class="w-full sm:w-64 px-3 py-2 text-sm border border-gray-300 rounded-lg bg-gray-50 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800 dark:border-gray-600 dark:text-white dark:placeholder-gray-400"
+      />
+
+      <button
+        type="button"
+        (click)="buscar()"
+        class="px-4 py-2 text-sm font-medium text-white bg-blue-700 rounded-lg hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 dark:bg-blue-600">
+        Buscar
+      </button>
+
+      <button
+        type="button"
+        (click)="abrirModalCrear()"
+        class="px-4 py-2 text-sm font-medium text-white bg-green-700 rounded-lg hover:bg-green-800 focus:ring-4 focus:ring-green-300 dark:bg-green-600">
+        <i class="fa-solid fa-plus mr-1"></i>
+        Nueva materia
+      </button>
+    </div>
+
+    <span class="text-sm text-gray-500 dark:text-gray-400">
+      Total: {{ totalRecords }}
+    </span>
+
+  </div>
+
+  <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
+
+    <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+      <tr>
+
+        <th class="px-6 py-3 cursor-pointer" (click)="ordenar('id')">
+          ID
+          <i *ngIf="sortBy === 'id'" class="ml-1"
+             [ngClass]="sortDescending ? 'fa-solid fa-arrow-down' : 'fa-solid fa-arrow-up'"></i>
+        </th>
+
+        <th class="px-6 py-3 cursor-pointer" (click)="ordenar('descripcion')">
+          Descripción
+          <i *ngIf="sortBy === 'descripcion'" class="ml-1"
+             [ngClass]="sortDescending ? 'fa-solid fa-arrow-down' : 'fa-solid fa-arrow-up'"></i>
+        </th>
+
+        <th class="px-6 py-3">
+          Fecha creación
+        </th>
+
+        <th scope="col" class="px-6 py-3 text-right">
+          Acciones
+        </th>
+
+      </tr>
+    </thead>
+
+    <tbody>
+      <tr
+        *ngFor="let m of materias; trackBy: trackByMateriaId"
+        class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
+
+        <td class="px-6 py-4 font-medium text-gray-900 dark:text-white">
+          {{ m.id }}
+        </td>
+
+        <td class="px-6 py-4">
+          {{ m.descripcion }}
+        </td>
+
+        <td class="px-6 py-4 text-xs text-gray-500 dark:text-gray-400">
+          {{ m.fechaCreacion | date:'short' }}
+        </td>
+
+        <td class="px-6 py-4">
+          <div class="flex flex-wrap items-center justify-end gap-2">
+            <div class="relative inline-flex group">
+              <button
+                type="button"
+                (click)="abrirModalEditar(m)"
+                class="inline-flex items-center justify-center rounded-lg p-2 text-gray-500 hover:bg-gray-100 hover:text-blue-600 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-blue-400">
+                <i class="fa-solid fa-pen-to-square text-lg"></i>
+              </button>
+              <div
+                role="tooltip"
+                class="absolute bottom-full left-1/2 z-20 mb-2 -translate-x-1/2 whitespace-nowrap rounded-lg bg-gray-900 px-3 py-2 text-xs font-medium text-white opacity-0 shadow-sm transition-opacity duration-300 invisible group-hover:opacity-100 group-hover:visible dark:bg-gray-700">
+                Editar materia
+                <div class="tooltip-arrow absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-gray-900 dark:border-t-gray-700"></div>
+              </div>
+            </div>
+          </div>
+        </td>
+
+      </tr>
+    </tbody>
+
+  </table>
+
+  <div class="flex flex-col sm:flex-row justify-between items-center gap-3 p-4 bg-white dark:bg-gray-900">
+
+    <button
+      type="button"
+      (click)="anteriorPagina()"
+      [disabled]="!hasPreviousPage"
+      class="px-4 py-2 text-sm font-medium text-white bg-gray-800 rounded-lg hover:bg-gray-900 disabled:opacity-50 disabled:cursor-not-allowed dark:bg-gray-700">
+      <i class="fa-solid fa-circle-arrow-left"></i> Anterior
+    </button>
+
+    <span class="text-sm text-gray-700 dark:text-gray-300">
+      Página {{ page }} de {{ totalPages }}
+    </span>
+
+    <button
+      type="button"
+      (click)="siguientePagina()"
+      [disabled]="!hasNextPage"
+      class="px-4 py-2 text-sm font-medium text-white bg-gray-800 rounded-lg hover:bg-gray-900 disabled:opacity-50 disabled:cursor-not-allowed dark:bg-gray-700">
+      Siguiente <i class="fa-solid fa-circle-arrow-right"></i>
+    </button>
+
+  </div>
+
+</div>
+
+<!-- MODAL CREAR -->
+<div
+  *ngIf="modalCrearAbierto"
+  tabindex="-1"
+  aria-modal="true"
+  class="fixed inset-0 z-50 flex items-center justify-center p-4 overflow-y-auto bg-gray-900/50 dark:bg-gray-900/80"
+  (click)="cerrarModalCrear()">
+
+  <div
+    class="relative w-full max-w-lg max-h-full rounded-lg bg-white shadow-sm dark:bg-gray-700"
+    (click)="$event.stopPropagation()">
+
+    <div class="flex items-center justify-between p-4 md:p-5 border-b border-gray-200 rounded-t dark:border-gray-600">
+      <h3 class="text-xl font-semibold text-gray-900 dark:text-white">
+        Nueva materia
+      </h3>
+
+      <button
+        type="button"
+        (click)="cerrarModalCrear()"
+        class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white">
+        <i class="fa-solid fa-xmark text-lg"></i>
+      </button>
+    </div>
+
+    <form
+      [formGroup]="crearForm"
+      (ngSubmit)="guardarCrear()"
+      class="p-4 md:p-5 space-y-4">
+
+      <p *ngIf="errorApi" class="text-sm text-red-600 dark:text-red-400">
+        {{ errorApi }}
+      </p>
+
+      <div>
+        <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+          Descripción
+        </label>
+        <input
+          type="text"
+          formControlName="descripcion"
+          class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:text-white"
+        />
+      </div>
+
+      <div class="flex items-center pt-2 border-t border-gray-200 dark:border-gray-600 gap-2 justify-end">
+        <button
+          type="button"
+          (click)="cerrarModalCrear()"
+          class="py-2.5 px-5 text-sm font-medium text-gray-900 bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700">
+          Cancelar
+        </button>
+
+        <button
+          type="submit"
+          [disabled]="guardando"
+          class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 dark:bg-blue-600 dark:hover:bg-blue-700 disabled:opacity-50">
+          {{ guardando ? 'Guardando…' : 'Guardar' }}
+        </button>
+      </div>
+
+    </form>
+  </div>
+</div>
+
+<!-- MODAL EDITAR -->
+<div
+  *ngIf="modalEditarAbierto"
+  tabindex="-1"
+  aria-modal="true"
+  class="fixed inset-0 z-50 flex items-center justify-center p-4 overflow-y-auto bg-gray-900/50 dark:bg-gray-900/80"
+  (click)="cerrarModalEditar()">
+
+  <div
+    class="relative w-full max-w-lg max-h-full rounded-lg bg-white shadow-sm dark:bg-gray-700"
+    (click)="$event.stopPropagation()">
+
+    <div class="flex items-center justify-between p-4 md:p-5 border-b border-gray-200 rounded-t dark:border-gray-600">
+      <h3 class="text-xl font-semibold text-gray-900 dark:text-white">
+        Editar materia
+      </h3>
+
+      <button
+        type="button"
+        (click)="cerrarModalEditar()"
+        class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white">
+        <i class="fa-solid fa-xmark text-lg"></i>
+      </button>
+    </div>
+
+    <form
+      [formGroup]="editarForm"
+      class="p-4 md:p-5 space-y-4">
+
+      <p *ngIf="errorApi" class="text-sm text-red-600 dark:text-red-400">
+        {{ errorApi }}
+      </p>
+
+      <input type="hidden" formControlName="id" />
+
+      <div>
+        <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+          Descripción
+        </label>
+        <input
+          type="text"
+          formControlName="descripcion"
+          class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:text-white"
+        />
+      </div>
+
+    </form>
+
+    <div class="flex items-center p-4 md:p-5 border-t border-gray-200 rounded-b dark:border-gray-600 gap-2 justify-end">
+      <button
+        type="button"
+        (click)="cerrarModalEditar()"
+        class="py-2.5 px-5 text-sm font-medium text-gray-900 bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700">
+        Cancelar
+      </button>
+
+      <button
+        type="button"
+        (click)="guardarEditar()"
+        [disabled]="guardando"
+        class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 dark:bg-blue-600 dark:hover:bg-blue-700 disabled:opacity-50">
+        {{ guardando ? 'Guardando…' : 'Guardar cambios' }}
+      </button>
+    </div>
+  </div>
+</div>
