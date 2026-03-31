@@ -27,3 +27,13 @@ export interface CursoCrearRequest {
   anio: number;
   cupoMaximo: number;
 }
+
+export interface CursoEditarRequest {
+  id: number;
+  modulo: number;
+  division: string;
+  modalidad: string;
+  turno: string;
+  anio: number;
+  cupoMaximo: number;
+}

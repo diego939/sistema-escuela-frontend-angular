@@ -86,6 +86,10 @@
              [ngClass]="sortDescending ? 'fa-solid fa-arrow-down' : 'fa-solid fa-arrow-up'"></i>
         </th>
 
+        <th scope="col" class="px-6 py-3 text-right">
+          Acciones
+        </th>
+
       </tr>
     </thead>
 
@@ -122,6 +126,25 @@
           <span class="px-2 py-1 text-xs font-medium rounded bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300">
             {{ c.cupoMaximo }}
           </span>
+        </td>
+
+        <td class="px-6 py-4">
+          <div class="flex flex-wrap items-center justify-end gap-2">
+            <div class="relative inline-flex group">
+              <button
+                type="button"
+                (click)="abrirModalEditar(c)"
+                class="inline-flex items-center justify-center rounded-lg p-2 text-gray-500 hover:bg-gray-100 hover:text-blue-600 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-blue-400">
+                <i class="fa-solid fa-pen-to-square text-lg"></i>
+              </button>
+              <div
+                role="tooltip"
+                class="absolute bottom-full left-1/2 z-20 mb-2 -translate-x-1/2 whitespace-nowrap rounded-lg bg-gray-900 px-3 py-2 text-xs font-medium text-white opacity-0 shadow-sm transition-opacity duration-300 invisible group-hover:opacity-100 group-hover:visible dark:bg-gray-700">
+                Editar curso
+                <div class="tooltip-arrow absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-gray-900 dark:border-t-gray-700"></div>
+              </div>
+            </div>
+          </div>
         </td>
 
       </tr>
@@ -285,5 +308,139 @@
       </div>
 
     </form>
+  </div>
+</div>
+
+<!-- MODAL EDITAR -->
+<div
+  *ngIf="modalEditarAbierto"
+  tabindex="-1"
+  aria-modal="true"
+  class="fixed inset-0 z-50 flex items-center justify-center p-4 overflow-y-auto bg-gray-900/50 dark:bg-gray-900/80"
+  (click)="cerrarModalEditar()">
+
+  <div
+    class="relative w-full max-w-2xl max-h-full rounded-lg bg-white shadow-sm dark:bg-gray-700"
+    (click)="$event.stopPropagation()">
+
+    <!-- HEADER -->
+    <div class="flex items-center justify-between p-4 md:p-5 border-b border-gray-200 rounded-t dark:border-gray-600">
+      <h3 class="text-xl font-semibold text-gray-900 dark:text-white">
+        Editar curso
+      </h3>
+
+      <button
+        type="button"
+        (click)="cerrarModalEditar()"
+        class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white">
+        <i class="fa-solid fa-xmark text-lg"></i>
+      </button>
+    </div>
+
+    <!-- BODY -->
+    <form
+      [formGroup]="editarForm"
+      class="p-4 md:p-5 space-y-4">
+
+      <p *ngIf="errorApi" class="text-sm text-red-600 dark:text-red-400">
+        {{ errorApi }}
+      </p>
+
+      <input type="hidden" formControlName="id" />
+
+      <!-- FILA 1 -->
+      <div class="grid gap-4 sm:grid-cols-2">
+        <div>
+          <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+            Módulo
+          </label>
+          <input
+            type="number"
+            formControlName="modulo"
+            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:text-white" />
+        </div>
+
+        <div>
+          <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+            División
+          </label>
+          <select
+            formControlName="division"
+            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:text-white">
+            <option value="">Seleccione</option>
+            <option *ngFor="let d of divisiones" [value]="d">{{ d }}</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- FILA 2 -->
+      <div class="grid gap-4 sm:grid-cols-2">
+        <div>
+          <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+            Modalidad
+          </label>
+          <select
+            formControlName="modalidad"
+            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:text-white">
+            <option value="">Seleccione</option>
+            <option *ngFor="let m of modalidades" [value]="m">{{ m }}</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+            Turno
+          </label>
+          <select
+            formControlName="turno"
+            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:text-white">
+            <option value="">Seleccione</option>
+            <option *ngFor="let t of turnos" [value]="t">{{ t }}</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- FILA 3 -->
+      <div class="grid gap-4 sm:grid-cols-2">
+        <div>
+          <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+            Año
+          </label>
+          <input
+            type="number"
+            formControlName="anio"
+            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:text-white" />
+        </div>
+
+        <div>
+          <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+            Cupo máximo
+          </label>
+          <input
+            type="number"
+            formControlName="cupoMaximo"
+            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:text-white" />
+        </div>
+      </div>
+
+    </form>
+
+    <!-- FOOTER -->
+    <div class="flex items-center p-4 md:p-5 border-t border-gray-200 rounded-b dark:border-gray-600 gap-2 justify-end">
+      <button
+        type="button"
+        (click)="cerrarModalEditar()"
+        class="py-2.5 px-5 text-sm font-medium text-gray-900 bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700">
+        Cancelar
+      </button>
+
+      <button
+        type="button"
+        (click)="guardarEditar()"
+        [disabled]="guardando"
+        class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 dark:bg-blue-600 dark:hover:bg-blue-700 disabled:opacity-50">
+        {{ guardando ? 'Guardando…' : 'Guardar cambios' }}
+      </button>
+    </div>
   </div>
 </div>

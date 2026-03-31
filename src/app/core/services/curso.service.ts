@@ -3,6 +3,7 @@ import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import {
+  CursoEditarRequest,
   CursoCrearRequest,
   CursoPaginadoResponse
 } from '../models/curso.model';
@@ -39,6 +40,13 @@ export class CursoService {
   crear(body: CursoCrearRequest): Observable<unknown> {
     return this.http.post(
       `${this.apiUrl}/api/Curso/crear`,
+      body
+    );
+  }
+
+  editar(body: CursoEditarRequest): Observable<unknown> {
+    return this.http.put(
+      `${this.apiUrl}/api/Curso/editar`,
       body
     );
   }

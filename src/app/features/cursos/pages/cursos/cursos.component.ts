@@ -39,10 +39,21 @@ export class CursosComponent implements OnInit {
   sortDescending = false;
 
   modalCrearAbierto = false;
+  modalEditarAbierto = false;
   guardando = false;
   errorApi: string | null = null;
 
   crearForm = this.fb.nonNullable.group({
+    modulo: [1, [Validators.required, Validators.min(1)]],
+    division: ['', Validators.required],
+    modalidad: ['', Validators.required],
+    turno: ['', Validators.required],
+    anio: [new Date().getFullYear(), [Validators.required, Validators.min(2000)]],
+    cupoMaximo: [1, [Validators.required, Validators.min(1)]]
+  });
+
+  editarForm = this.fb.nonNullable.group({
+    id: [0],
     modulo: [1, [Validators.required, Validators.min(1)]],
     division: ['', Validators.required],
     modalidad: ['', Validators.required],
@@ -185,5 +196,60 @@ export class CursosComponent implements OnInit {
       return err.error?.message || 'Error en la solicitud';
     }
     return 'Ocurrió un error';
+  }
+
+  abrirModalEditar(curso: Curso): void {
+    this.errorApi = null;
+    this.editarForm.patchValue({
+      id: curso.id,
+      modulo: curso.modulo,
+      division: curso.division,
+      modalidad: curso.modalidad,
+      turno: curso.turno,
+      anio: curso.anio,
+      cupoMaximo: curso.cupoMaximo
+    });
+    this.modalEditarAbierto = true;
+  }
+
+  cerrarModalEditar(): void {
+    this.modalEditarAbierto = false;
+    this.errorApi = null;
+  }
+
+  guardarEditar(): void {
+    if (this.guardando) return;
+
+    if (this.editarForm.invalid) {
+      this.editarForm.markAllAsTouched();
+      this.errorApi = 'Complete todos los campos correctamente.';
+      return;
+    }
+
+    const v = this.editarForm.getRawValue();
+
+    this.guardando = true;
+    this.errorApi = null;
+
+    this.cursoService.editar({
+      id: v.id,
+      modulo: v.modulo,
+      division: v.division.trim(),
+      modalidad: v.modalidad.trim(),
+      turno: v.turno.trim(),
+      anio: v.anio,
+      cupoMaximo: v.cupoMaximo
+    }).subscribe({
+      next: () => {
+        this.guardando = false;
+        this.cerrarModalEditar();
+        this.cargarCursos();
+        this.toastSuccess('Curso editado correctamente');
+      },
+      error: err => {
+        this.guardando = false;
+        this.errorApi = this.mensajeErrorHttp(err);
+      }
+    });
   }
 }
