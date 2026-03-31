@@ -7,6 +7,7 @@ import {
   CursoCrearRequest,
   CursoPaginadoResponse
 } from '../models/curso.model';
+import { CursoMateria } from '../models/materia.model';
 
 @Injectable({
   providedIn: 'root'
@@ -48,6 +49,12 @@ export class CursoService {
     return this.http.put(
       `${this.apiUrl}/api/Curso/editar`,
       body
+    );
+  }
+
+  getMateriasPorCurso(idCurso: number): Observable<CursoMateria[]> {
+    return this.http.get<CursoMateria[]>(
+      `${this.apiUrl}/api/Materia/curso/${idCurso}`
     );
   }
 }

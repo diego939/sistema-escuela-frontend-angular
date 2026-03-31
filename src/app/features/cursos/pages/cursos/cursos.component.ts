@@ -6,6 +6,7 @@ import Swal from 'sweetalert2';
 
 import { CursoService } from '../../../../core/services/curso.service';
 import { Curso } from '../../../../core/models/curso.model';
+import { CursoMateria } from '../../../../core/models/materia.model';
 
 @Component({
   selector: 'app-cursos',
@@ -40,8 +41,12 @@ export class CursosComponent implements OnInit {
 
   modalCrearAbierto = false;
   modalEditarAbierto = false;
+  modalMateriasAbierto = false;
   guardando = false;
   errorApi: string | null = null;
+  materias: CursoMateria[] = [];
+  cursoSeleccionado: Curso | null = null;
+  cargandoMaterias = false;
 
   crearForm = this.fb.nonNullable.group({
     modulo: [1, [Validators.required, Validators.min(1)]],
@@ -73,6 +78,10 @@ export class CursosComponent implements OnInit {
 
   trackByCursoId(_: number, c: Curso): number {
     return c.id;
+  }
+
+  trackByMateriaId(_: number, m: CursoMateria): number {
+    return m.id;
   }
 
   cargarCursos(): void {
@@ -250,6 +259,46 @@ export class CursosComponent implements OnInit {
         this.guardando = false;
         this.errorApi = this.mensajeErrorHttp(err);
       }
+    });
+  }
+
+  abrirModalMaterias(curso: Curso): void {
+    this.cursoSeleccionado = curso;
+    this.materias = [];
+    this.cargandoMaterias = true;
+    this.modalMateriasAbierto = true;
+    this.cargarMateriasCurso(curso.id);
+  }
+
+  cerrarModalMaterias(): void {
+    this.modalMateriasAbierto = false;
+    this.cursoSeleccionado = null;
+    this.materias = [];
+    this.cargandoMaterias = false;
+  }
+
+  cargarMateriasCurso(idCurso: number): void {
+    this.cursoService.getMateriasPorCurso(idCurso).subscribe({
+      next: (materias) => {
+        this.materias = materias;
+        this.cargandoMaterias = false;
+      },
+      error: (err) => {
+        this.cargandoMaterias = false;
+        this.toastError('Error al cargar las materias');
+        console.error(err);
+      }
+    });
+  }
+
+  private toastError(mensaje: string): void {
+    Swal.fire({
+      toast: true,
+      position: 'top',
+      icon: 'error',
+      title: mensaje,
+      showConfirmButton: false,
+      timer: 2000
     });
   }
 }
