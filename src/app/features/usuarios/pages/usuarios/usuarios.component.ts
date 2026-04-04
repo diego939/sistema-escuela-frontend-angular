@@ -3,8 +3,21 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { UsuarioService } from '../../../../core/services/usuario.service';
+import { ProfesorService } from '../../../../core/services/profesor.service';
+import { PreceptorService } from '../../../../core/services/preceptor.service';
+import { CursoService } from '../../../../core/services/curso.service';
 import { Rol, Usuario } from '../../../../core/models/usuario.model';
+import { Curso } from '../../../../core/models/curso.model';
+import { CursoMateria } from '../../../../core/models/materia.model';
+import {
+  Profesor,
+  MateriaProfesor,
+  CursoProfesor
+} from '../../../../core/models/profesor.model';
+import { Preceptor, PreceptorCurso } from '../../../../core/models/preceptor.model';
 import Swal from 'sweetalert2';
+
+export type TabUsuarios = 'usuarios' | 'profesores' | 'preceptores';
 
 @Component({
   selector: 'app-usuarios',
@@ -14,6 +27,8 @@ import Swal from 'sweetalert2';
   styleUrl: './usuarios.component.css'
 })
 export class UsuariosComponent implements OnInit {
+
+  tabActivo: TabUsuarios = 'usuarios';
 
   usuarios: Usuario[] = [];
   roles: Rol[] = [];
@@ -41,6 +56,57 @@ export class UsuariosComponent implements OnInit {
   usuarioConfirmacion: Usuario | null = null;
   accionConfirmacion: 'activar' | 'desactivar' | null = null;
 
+  /** --- Profesores (RF11–RF13) --- */
+  profesores: Profesor[] = [];
+  profPage = 1;
+  profPageSize = 10;
+  profTotalRecords = 0;
+  profTotalPages = 0;
+  profHasNextPage = false;
+  profHasPreviousPage = false;
+  profSearch = '';
+  profSortBy = 'nombres';
+  profSortDescending = false;
+
+  modalProfAsignarAbierto = false;
+  modalProfMateriasAbierto = false;
+  modalProfCursosAbierto = false;
+  profesorAccion: Profesor | null = null;
+  guardandoProfAsignar = false;
+  errorProfModal: string | null = null;
+  cursosSelect: Curso[] = [];
+  cargandoCursosSelect = false;
+  materiasCursoSelect: CursoMateria[] = [];
+  profAsignarCursoId: number | null = null;
+  profAsignarCursoMateriaId: number | null = null;
+  cargandoProfMaterias = false;
+  cargandoProfCursos = false;
+  materiasProfesorLista: MateriaProfesor[] = [];
+  cursosProfesorLista: CursoProfesor[] = [];
+
+  /** --- Preceptores (RF14–RF15) --- */
+  preceptores: Preceptor[] = [];
+  prepPage = 1;
+  prepPageSize = 10;
+  prepTotalRecords = 0;
+  prepTotalPages = 0;
+  prepHasNextPage = false;
+  prepHasPreviousPage = false;
+  prepSearch = '';
+  prepSortBy = 'nombres';
+  prepSortDescending = false;
+
+  modalPrepAsignarAbierto = false;
+  modalPrepCursosAbierto = false;
+  preceptorAccion: Preceptor | null = null;
+  guardandoPrepAsignar = false;
+  errorPrepModal: string | null = null;
+  cursosSelectPrep: Curso[] = [];
+  cargandoCursosSelectPrep = false;
+  prepAsignarCursoId: number | null = null;
+  cargandoPrepCursos = false;
+  cursosPreceptorLista: PreceptorCurso[] = [];
+
   crearForm = this.fb.nonNullable.group({
     nombres: ['', Validators.required],
     apellidos: ['', Validators.required],
@@ -64,6 +130,9 @@ export class UsuariosComponent implements OnInit {
 
   constructor(
     private usuarioService: UsuarioService,
+    private profesorService: ProfesorService,
+    private preceptorService: PreceptorService,
+    private cursoService: CursoService,
     private fb: FormBuilder
   ) {}
 
@@ -74,6 +143,332 @@ export class UsuariosComponent implements OnInit {
 
   trackByUsuarioId(_: number, u: Usuario): number {
     return u.id;
+  }
+
+  trackByProfesorId(_: number, p: Profesor): number {
+    return p.id;
+  }
+
+  trackByPreceptorId(_: number, p: Preceptor): number {
+    return p.id;
+  }
+
+  cambiarTab(tab: TabUsuarios): void {
+    this.tabActivo = tab;
+    if (tab === 'usuarios') {
+      this.cargarUsuarios();
+    } else if (tab === 'profesores') {
+      this.cargarProfesores();
+    } else {
+      this.cargarPreceptores();
+    }
+  }
+
+  etiquetaCurso(c: Curso): string {
+    return `${c.anio} · ${c.modulo}° ${c.division} · ${c.turno}`;
+  }
+
+  /** Profesores */
+  cargarProfesores(): void {
+    this.profesorService
+      .getProfesoresPaginados(
+        this.profPage,
+        this.profPageSize,
+        this.profSearch,
+        this.profSortBy,
+        this.profSortDescending
+      )
+      .subscribe(resp => {
+        this.profesores = resp.data;
+        this.profTotalRecords = resp.totalRecords;
+        this.profTotalPages = resp.totalPages;
+        this.profHasPreviousPage =
+          resp.hasPreviousPage ?? this.profPage > 1;
+        this.profHasNextPage =
+          resp.hasNextPage ?? this.profPage < this.profTotalPages;
+      });
+  }
+
+  siguientePaginaProf(): void {
+    if (this.profHasNextPage) {
+      this.profPage++;
+      this.cargarProfesores();
+    }
+  }
+
+  anteriorPaginaProf(): void {
+    if (this.profHasPreviousPage) {
+      this.profPage--;
+      this.cargarProfesores();
+    }
+  }
+
+  buscarProf(): void {
+    this.profPage = 1;
+    this.cargarProfesores();
+  }
+
+  ordenarProf(campo: string): void {
+    if (this.profSortBy === campo) {
+      this.profSortDescending = !this.profSortDescending;
+    } else {
+      this.profSortBy = campo;
+      this.profSortDescending = false;
+    }
+    this.cargarProfesores();
+  }
+
+  abrirModalProfAsignar(p: Profesor): void {
+    this.profesorAccion = p;
+    this.errorProfModal = null;
+    this.profAsignarCursoId = null;
+    this.profAsignarCursoMateriaId = null;
+    this.materiasCursoSelect = [];
+    this.modalProfAsignarAbierto = true;
+    this.cargandoCursosSelect = true;
+    this.cursoService.getCursosPaginados(1, 500, '', 'anio', false).subscribe({
+      next: r => {
+        this.cursosSelect = r.data;
+        this.cargandoCursosSelect = false;
+      },
+      error: err => {
+        this.cargandoCursosSelect = false;
+        this.errorProfModal = this.mensajeErrorHttp(err);
+      }
+    });
+  }
+
+  cerrarModalProfAsignar(): void {
+    this.modalProfAsignarAbierto = false;
+    this.profesorAccion = null;
+    this.errorProfModal = null;
+    this.cursosSelect = [];
+    this.materiasCursoSelect = [];
+    this.profAsignarCursoId = null;
+    this.profAsignarCursoMateriaId = null;
+    this.guardandoProfAsignar = false;
+  }
+
+  onProfCursoSeleccionado(idCurso: number | null): void {
+    this.profAsignarCursoMateriaId = null;
+    this.materiasCursoSelect = [];
+    if (idCurso == null || !Number.isFinite(idCurso)) {
+      return;
+    }
+    this.cursoService.getMateriasPorCurso(idCurso).subscribe({
+      next: m => {
+        this.materiasCursoSelect = m;
+      },
+      error: err => {
+        this.errorProfModal = this.mensajeErrorHttp(err);
+      }
+    });
+  }
+
+  guardarProfAsignar(): void {
+    const prof = this.profesorAccion;
+    const idCm = this.profAsignarCursoMateriaId;
+    if (!prof || idCm == null || this.guardandoProfAsignar) {
+      this.errorProfModal =
+        'Seleccione un curso y una materia (relación curso-materia).';
+      return;
+    }
+    this.guardandoProfAsignar = true;
+    this.errorProfModal = null;
+    this.profesorService
+      .asignar({ idProfesor: prof.id, idCursoMateria: idCm })
+      .subscribe({
+        next: () => {
+          this.guardandoProfAsignar = false;
+          this.cerrarModalProfAsignar();
+          this.toastSuccess('Profesor asignado a la materia correctamente');
+        },
+        error: err => {
+          this.guardandoProfAsignar = false;
+          this.errorProfModal = this.mensajeErrorHttp(err);
+        }
+      });
+  }
+
+  abrirModalProfMaterias(p: Profesor): void {
+    this.profesorAccion = p;
+    this.materiasProfesorLista = [];
+    this.cargandoProfMaterias = true;
+    this.modalProfMateriasAbierto = true;
+    this.profesorService.getMateriasDelProfesor(p.id).subscribe({
+      next: list => {
+        this.materiasProfesorLista = list;
+        this.cargandoProfMaterias = false;
+      },
+      error: err => {
+        this.cargandoProfMaterias = false;
+        this.toastError(this.mensajeErrorHttp(err));
+      }
+    });
+  }
+
+  cerrarModalProfMaterias(): void {
+    this.modalProfMateriasAbierto = false;
+    this.profesorAccion = null;
+    this.materiasProfesorLista = [];
+  }
+
+  abrirModalProfCursos(p: Profesor): void {
+    this.profesorAccion = p;
+    this.cursosProfesorLista = [];
+    this.cargandoProfCursos = true;
+    this.modalProfCursosAbierto = true;
+    this.profesorService.getCursosDelProfesor(p.id).subscribe({
+      next: list => {
+        this.cursosProfesorLista = list;
+        this.cargandoProfCursos = false;
+      },
+      error: err => {
+        this.cargandoProfCursos = false;
+        this.toastError(this.mensajeErrorHttp(err));
+      }
+    });
+  }
+
+  cerrarModalProfCursos(): void {
+    this.modalProfCursosAbierto = false;
+    this.profesorAccion = null;
+    this.cursosProfesorLista = [];
+  }
+
+  /** Preceptores */
+  cargarPreceptores(): void {
+    this.preceptorService
+      .getPreceptoresPaginados(
+        this.prepPage,
+        this.prepPageSize,
+        this.prepSearch,
+        this.prepSortBy,
+        this.prepSortDescending
+      )
+      .subscribe(resp => {
+        this.preceptores = resp.data;
+        this.prepTotalRecords = resp.totalRecords;
+        this.prepTotalPages = resp.totalPages;
+        this.prepHasPreviousPage =
+          resp.hasPreviousPage ?? this.prepPage > 1;
+        this.prepHasNextPage =
+          resp.hasNextPage ?? this.prepPage < this.prepTotalPages;
+      });
+  }
+
+  siguientePaginaPrep(): void {
+    if (this.prepHasNextPage) {
+      this.prepPage++;
+      this.cargarPreceptores();
+    }
+  }
+
+  anteriorPaginaPrep(): void {
+    if (this.prepHasPreviousPage) {
+      this.prepPage--;
+      this.cargarPreceptores();
+    }
+  }
+
+  buscarPrep(): void {
+    this.prepPage = 1;
+    this.cargarPreceptores();
+  }
+
+  ordenarPrep(campo: string): void {
+    if (this.prepSortBy === campo) {
+      this.prepSortDescending = !this.prepSortDescending;
+    } else {
+      this.prepSortBy = campo;
+      this.prepSortDescending = false;
+    }
+    this.cargarPreceptores();
+  }
+
+  abrirModalPrepAsignar(p: Preceptor): void {
+    this.preceptorAccion = p;
+    this.errorPrepModal = null;
+    this.prepAsignarCursoId = null;
+    this.modalPrepAsignarAbierto = true;
+    this.cargandoCursosSelectPrep = true;
+    this.cursoService.getCursosPaginados(1, 500, '', 'anio', false).subscribe({
+      next: r => {
+        this.cursosSelectPrep = r.data;
+        this.cargandoCursosSelectPrep = false;
+      },
+      error: err => {
+        this.cargandoCursosSelectPrep = false;
+        this.errorPrepModal = this.mensajeErrorHttp(err);
+      }
+    });
+  }
+
+  cerrarModalPrepAsignar(): void {
+    this.modalPrepAsignarAbierto = false;
+    this.preceptorAccion = null;
+    this.errorPrepModal = null;
+    this.cursosSelectPrep = [];
+    this.prepAsignarCursoId = null;
+    this.guardandoPrepAsignar = false;
+  }
+
+  guardarPrepAsignar(): void {
+    const prep = this.preceptorAccion;
+    const idCurso = this.prepAsignarCursoId;
+    if (!prep || idCurso == null || this.guardandoPrepAsignar) {
+      this.errorPrepModal = 'Seleccione un curso.';
+      return;
+    }
+    this.guardandoPrepAsignar = true;
+    this.errorPrepModal = null;
+    this.preceptorService
+      .asignar({ idPreceptor: prep.id, idCurso })
+      .subscribe({
+        next: () => {
+          this.guardandoPrepAsignar = false;
+          this.cerrarModalPrepAsignar();
+          this.toastSuccess('Preceptor asignado al curso correctamente');
+        },
+        error: err => {
+          this.guardandoPrepAsignar = false;
+          this.errorPrepModal = this.mensajeErrorHttp(err);
+        }
+      });
+  }
+
+  abrirModalPrepCursos(p: Preceptor): void {
+    this.preceptorAccion = p;
+    this.cursosPreceptorLista = [];
+    this.cargandoPrepCursos = true;
+    this.modalPrepCursosAbierto = true;
+    this.preceptorService.getCursosDelPreceptor(p.id).subscribe({
+      next: list => {
+        this.cursosPreceptorLista = list;
+        this.cargandoPrepCursos = false;
+      },
+      error: err => {
+        this.cargandoPrepCursos = false;
+        this.toastError(this.mensajeErrorHttp(err));
+      }
+    });
+  }
+
+  cerrarModalPrepCursos(): void {
+    this.modalPrepCursosAbierto = false;
+    this.preceptorAccion = null;
+    this.cursosPreceptorLista = [];
+  }
+
+  private toastError(mensaje: string): void {
+    Swal.fire({
+      toast: true,
+      position: 'top',
+      icon: 'error',
+      title: mensaje,
+      showConfirmButton: false,
+      timer: 2500
+    });
   }
 
   private cargarRoles(): void {
